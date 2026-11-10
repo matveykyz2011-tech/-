@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Народная смета — калькулятор стоимости беседки</title>
+<meta name="description" content="Задайте размеры беседки и получите смету по каждому материалу с ценой и ссылкой на магазин, в BYN."/>
+<link rel="icon" type="image/svg+xml" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="%23f97316"/><path d="M20 55 50 25l30 30" fill="none" stroke="white" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 55v20h36V55" fill="none" stroke="white" stroke-width="9" stroke-linejoin="round"/></svg>'/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Onest:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#141518; --panel:#1c1d21; --card:#22242a; --card2:#272a31;
+  --text:#f4f4f5; --muted:#a6a6ae; --border:#343740; --border2:#454955;
+  --primary:#f97316; --primary-hover:#ea580c;
+  --success:#22c55e; --link:#fb923c; --ring:rgba(249,115,22,.45);
+}
+html[data-theme="light"]{
+  --bg:#f6f6f3; --panel:#ffffff; --card:#ffffff; --card2:#f1f1ee;
+  --text:#242424; --muted:#6b6b66; --border:#e2e2dc; --border2:#cfcfc7;
+  --primary:#f97316; --primary-hover:#ea580c;
+  --success:#16a34a; --link:#c2410c; --ring:rgba(249,115,22,.4);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+.font-head{font-family:Onest,Inter,system-ui,sans-serif}
+.container{width:min(1180px,100%);margin:0 auto;padding:0 20px}
+.lbl{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px}
+.btn{display:inline-flex;align-items:center;gap:.5rem;border:0;border-radius:12px;cursor:pointer;padding:.75rem 1.1rem;font-weight:600;font-family:inherit;transition:.18s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:.5rem .8rem;font-size:.9rem}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--ring);outline-offset:2px}
+a{color:var(--link)}
+
+header.top{position:sticky;top:0;z-index:50;background:rgba(28,29,33,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+html[data-theme="light"] header.top{background:rgba(255,255,255,.92)}
+.nav{height:64px;display:flex;align-items:center;gap:22px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-weight:700;font-family:Onest}
+.nav-links{display:flex;gap:18px;font-size:.94rem;margin-left:8px}
+.nav-links a{color:var(--muted);text-decoration:none}
+.nav-links a:hover{color:var(--primary)}
+.spacer{flex:1}
+.burger{display:none;background:transparent;border:1px solid var(--border2);border-radius:10px;color:var(--text);width:42px;height:42px;cursor:pointer}
+.mobile-panel{display:none;border-top:1px solid var(--border);padding:12px 20px 16px;background:var(--panel)}
+.mobile-panel a{display:block;padding:10px 4px;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border)}
+.mobile-panel a:last-child{border-bottom:0}
+.theme-toggle{width:44px;height:40px;border-radius:12px;border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-size:18px}
+.theme-toggle:hover{border-color:var(--primary)}
+
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--border);background:radial-gradient(900px 380px at 50% -10%,rgba(249,115,22,.38),transparent 60%),linear-gradient(180deg,rgba(249,115,22,.12),transparent);text-align:center;padding:64px 20px 56px}
+.hero-badge{display:inline-flex;gap:10px;align-items:center;font-size:.9rem;color:var(--muted);margin-bottom:18px;flex-wrap:wrap;justify-content:center}
+.hero-badge b{color:var(--primary);border:1px solid var(--primary);border-radius:8px;padding:2px 8px;font-weight:600}
+h1{font-size:clamp(2.2rem,6vw,4rem);line-height:1.05;letter-spacing:-.03em;margin:0 0 14px;font-weight:700}
+.hero p{font-size:1.08rem;color:var(--muted);margin:0}
+
+.calc{display:grid;grid-template-columns:1.02fr .98fr;gap:0;border-bottom:1px solid var(--border)}
+.form-col{padding:28px 28px 28px 0;border-right:1px solid var(--border)}
+.result-col{padding:28px 0 28px 28px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;min-width:0}
+.field:focus-within{border-color:var(--primary)}
+.field>span:first-child{color:var(--muted);white-space:nowrap}
+.field-input{display:flex;align-items:center;gap:6px;min-width:0}
+.field input[type=number]{width:92px;min-width:0;background:transparent;border:0;color:var(--text);font-size:1rem;text-align:right;outline:none;font-family:inherit}
+.field-select{gap:14px}
+.field-select .select-wrap{position:relative;display:flex;align-items:center;flex:1;min-width:0}
+.field-select select{width:100%;appearance:none;-webkit-appearance:none;background:transparent;border:0;color:var(--text);cursor:pointer;font-family:inherit;font-size:1rem;text-align:right;padding:0 24px 0 0;outline:none}
+.field-select select option{background:var(--card);color:var(--text)}
+.field-select .select-wrap svg{position:absolute;right:0;width:16px;height:16px;color:var(--muted);pointer-events:none}
+.unit{font-size:.75rem;color:var(--muted)}
+.full{grid-column:1/-1}
+.mt{margin-top:14px}
+
+.switch{position:relative;display:inline-flex;width:44px;height:24px;background:var(--border2);border-radius:999px;border:0;cursor:pointer;transition:.2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.switch[aria-checked="true"]{background:var(--primary)}
+.switch[aria-checked="true"]::after{transform:translateX(20px)}
+
+.sum-row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-top:1px solid var(--border)}
+.est-line{border-top:1px solid var(--border);padding-bottom:4px}
+.est-btn{width:100%;background:transparent;border:0;color:var(--text);text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:10px 2px;font-family:inherit}
+.est-name{font-weight:600}
+.est-detail{font-size:.84rem;color:var(--muted)}
+.est-formula{display:none;padding:0 2px 10px;color:var(--muted);font-size:.84rem;border-top:1px dashed var(--border);padding-top:8px}
+.est-line.open .est-formula{display:block}
+.est-price{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
+.est-buy{display:flex;flex-wrap:wrap;gap:6px;padding:0 2px 10px}
+.buy-link{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;padding:5px 9px;border-radius:9px;border:1px solid var(--border);color:var(--text);text-decoration:none;background:var(--card2);transition:.15s}
+.buy-link:hover{border-color:var(--primary);color:var(--primary)}
+.buy-store{color:var(--primary);font-weight:600}
+.buy-price{color:var(--muted);font-variant-numeric:tabular-nums}
+.buy-arrow{color:var(--muted)}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-top:14px}
+.total strong{font-size:1.8rem;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.saving{color:var(--success);font-weight:600}
+.note{font-size:.82rem;color:var(--muted);margin-top:12px}
+
+section.block{padding:56px 0;border-bottom:1px solid var(--border)}
+.h2{font-size:clamp(1.6rem,3vw,2.3rem);letter-spacing:-.02em;margin:8px 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:10px;padding:7px 11px;font-size:.88rem;color:var(--muted);text-decoration:none}
+.chip.on{border-color:rgba(34,197,94,.6);color:var(--text)}
+.chip.on i{color:var(--success);font-style:normal}
+.chip:not(.on):hover{border-color:var(--primary);color:var(--primary)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.mcard{display:flex;flex-direction:column;gap:10px;padding:14px}
+.mcard-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.mcard-name{font-weight:600}
+.mcard-unit{font-size:.78rem;color:var(--muted)}
+.mcard-price{font-size:1.15rem;font-weight:700;font-variant-numeric:tabular-nums}
+.price-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 10px;outline:none;font-family:inherit}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:26px}
+.step{background:var(--bg);padding:22px}
+.step small{color:var(--muted);font-family:Onest}
+.step h3{margin:42px 0 8px;font-size:1.08rem}
+.step p{color:var(--muted);margin:0;font-size:.92rem}
+details.faq{border-bottom:1px solid var(--border);padding:14px 0}
+details.faq summary{cursor:pointer;font-weight:600}
+details.faq p{color:var(--muted);margin:10px 0 0}
+
+.tool-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 18px;margin-top:12px;padding-left:18px;color:var(--muted)}
+.tool-list b{color:var(--text)}
+
+footer{padding:28px 0 40px}
+.foot{display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;z-index:100;font-size:.92rem}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:980px){
+  .calc{grid-template-columns:1fr}
+  .form-col{padding:22px 0;border-right:0;border-bottom:1px solid var(--border)}
+  .result-col{padding:22px 0}
+  .steps{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:760px){
+  .nav-links,.actions-desktop{display:none}
+  .burger{display:inline-flex;align-items:center;justify-content:center}
+  .mobile-panel.open{display:block}
+  .form-grid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .steps{grid-template-columns:1fr}
+  .tool-list{grid-template-columns:1fr}
+  .total strong{font-size:1.45rem}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="container nav">
+    <a class="logo" href="#top" aria-label="Народная смета">
+      <svg width="34" height="34" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="18" fill="#f97316"/><path d="M20 55 50 25l30 30" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 55v20h36V55" fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round"/></svg>
+      Народная смета
+    </a>
+    <nav class="nav-links" aria-label="Основная навигация">
+      <a href="#calc">Беседки</a>
+      <a href="#stores">Магазины</a>
+      <a href="#how">Как считаем</a>
+    </nav>
+    <span class="spacer"></span>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Переключить тему">🌙</button>
+    <button class="btn btn-ghost btn-sm actions-desktop" id="saveBtn" type="button">Сохранить</button>
+    <a class="btn btn-primary btn-sm actions-desktop" href="#calc">Рассчитать</a>
+    <button class="burger" id="burger" type="button" aria-label="Меню">☰</button>
+  </div>
+  <div class="mobile-panel" id="mobilePanel">
+    <a href="#calc">Беседки</a>
+    <a href="#stores">Магазины</a>
+    <a href="#how">Как считаем</a>
+    <a href="#" id="saveBtnMobile">Сохранить расчёт</a>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="hero-badge"><b>Цены сегодня</b><span>Минимальная цена среди 21 век, KSK, ОМА и Луна Строй</span></div>
+  <h1 class="font-head">Народная смета</h1>
+  <p>Задайте размеры — получите каждую позицию с ценой и ссылкой на магазин.</p>
+</section>
+
+<main id="calc" class="container calc" aria-label="Калькулятор беседки">
+  <form class="form-col" id="calcForm">
+    <p class="lbl">Размеры, м</p>
+    <div class="form-grid">
+      <label class="field"><span>Длина</span><span class="field-input"><input id="length" type="number" inputmode="decimal" step="0.1" min="0" value="4"><span class="unit">м</span></span></label>
+      <label class="field"><span>Ширина</span><span class="field-input"><input id="width" type="number" inputmode="decimal" step="0.1" min="0" value="4"><span class="unit">м</span></span></label>
+      <label class="field"><span>Высота перед</span><span class="field-input"><input id="frontH" type="number" inputmode="decimal" step="0.1" min="0" value="2.5"><span class="unit">м</span></span></label>
+      <label class="field"><span>Высота зад</span><span class="field-input"><input id="backH" type="number" inputmode="decimal" step="0.1" min="0" value="2.2"><span class="unit">м</span></span></label>
+    </div>
+
+    <p class="lbl mt">Кровля и фундамент</p>
+    <div class="form-grid">
+      <label class="field field-select full">
+        <span>Кровля</span>
+        <span class="select-wrap">
+          <select id="roofType" aria-label="Тип кровли">
+            <option value="metal">Металлочерепица</option>
+            <option value="profile">Профнастил</option>
+            <option value="ondulin">Ондулин</option>
+            <option value="slate">Шифер</option>
+          </select>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </span>
+      </label>
+
+      <label class="field field-select full">
+        <span>Фундамент</span>
+        <span class="select-wrap">
+          <select id="foundationType" aria-label="Тип фундамента">
+            <option value="piles">Винтовые сваи 57 мм</option>
+            <option value="blocks">Фундаментные блоки 20×20×40</option>
+            <option value="concrete">Ленточный монолит + арматура</option>
+          </select>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </span>
+      </label>
+    </div>
+
+    <p class="lbl mt">Пол и перила</p>
+    <div class="form-grid">
+      <div class="field"><span>Пол</span><button class="switch" id="floorSwitch" type="button" role="switch" aria-checked="true" aria-label="Пол"></button></div>
+      <div class="field"><span>Перила</span><button class="switch" id="railsSwitch" type="button" role="switch" aria-checked="true" aria-label="Перила"></button></div>
+      <label class="field"><span>Длина перил</span><span class="field-input"><input id="railLength" type="number" inputmode="decimal" step="0.1" min="0" value="11.2"><span class="unit">м</span></span></label>
+      <label class="field"><span>Высота перил</span><span class="field-input"><input id="railHeight" type="number" inputmode="decimal" step="0.1" min="0" value="1"><span class="unit">м</span></span></label>
+    </div>
+
+    <div class="mt" style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" type="submit" style="flex:1;justify-content:center;padding:14px">🧮 Рассчитать смету</button>
+      <button class="btn btn-ghost" id="resetDims" type="button" title="Вернуть стандартные размеры">↺</button>
+    </div>
+  </form>
+
+  <aside class="result-col" aria-live="polite">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+      <p class="lbl" style="margin:0">Смета</p>
+      <a href="#stores" class="muted" style="text-decoration:none;font-size:.88rem">Магазины и цены →</a>
+    </div>
+    <p class="note" id="summaryLine">Площадь 16 м²</p>
+    <div id="estimateLines"></div>
+
+    <div class="total"><span>Своими руками</span><strong id="totalSelf">0 BYN</strong></div>
+    <div class="sum-row" style="padding:8px 0;border-top:0"><span class="muted">Готовая беседка</span><span class="muted" id="totalReady">0 BYN</span></div>
+    <div class="sum-row" style="padding:0 0 4px;border-top:0"><span class="saving">Экономия против готовой</span><span class="saving" id="totalSave">0 BYN</span></div>
+
+    <details class="card" style="margin-top:16px;padding:14px">
+      <summary style="cursor:pointer;font-weight:700">Понадобится инструмент <span class="muted">· 12 поз.</span></summary>
+      <ul class="tool-list">
+        <li><b>Рулетка 5 м и уголок</b><br>разметка и прямые углы</li>
+        <li><b>Уровень 1–2 м</b><br>стойки и обвязка</li>
+        <li><b>Торцовка/циркулярка</b><br>раскрой бруса и досок</li>
+        <li><b>Ножовка по дереву</b><br>подгонка по месту</li>
+        <li><b>Шуруповёрт + биты</b><br>саморезы и уголки</li>
+        <li><b>Дрель и свёрла</b><br>отверстия под крепёж</li>
+        <li><b>Молоток и стамеска</b><br>врубки и подгонка</li>
+        <li><b>Стремянка</b><br>работы на высоте</li>
+        <li><b>Кисти/валик</b><br>антисептик и покраска</li>
+        <li><b>Перчатки и очки</b><br>защита при работе</li>
+        <li><b>Ножницы по металлу</b><br>резка листов кровли</li>
+        <li><b>Вороток для свай</b><br>закручивание свай</li>
+      </ul>
+    </details>
+    <p class="note">Ссылки в смете ведут на страницу поиска нужного материала в магазине с минимальной ценой. Нажмите на позицию — покажем формулу.</p>
+  </aside>
+</main>
+
+<section id="stores" class="block">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;gap:18px;align-items:end;flex-wrap:wrap">
+      <div style="max-width:760px">
+        <p class="lbl">Магазины</p>
+        <h2 class="h2 font-head">Ссылки на товары и цены</h2>
+        <p class="muted" style="margin:0">Сравниваем четыре магазина — <b>21 век</b>, <b>KSK</b>, <b>ОМА</b> и <b>Луна Строй</b>. В смете у каждого материала есть ссылка на магазин с самой низкой ценой. Свои цены сохраняются в браузере.</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="resetPrices" type="button">↺ Сбросить цены</button>
+    </div>
+    <div class="chips" id="storeChips"></div>
+    <div class="cards" id="priceCards"></div>
+  </div>
+</section>
+
+<section id="how" class="block">
+  <div class="container">
+    <p class="lbl">Как считаем</p>
+    <h2 class="h2 font-head">Прозрачная формула</h2>
+    <div class="steps">
+      <div class="step"><small>01</small><h3>Размеры</h3><p>Длина, ширина и две высоты задают площадь, периметр и уклон односкатной крыши.</p></div>
+      <div class="step"><small>02</small><h3>Объём материалов</h3><p>Считаем метры бруса и досок, площадь кровли, литры пропитки и крепёж — с запасом.</p></div>
+      <div class="step"><small>03</small><h3>Минимальная цена</h3><p>У каждого материала подбираем магазин с минимальной ценой среди 21 век, KSK, ОМА и Луна Строй — и подписываем ссылкой.</p></div>
+      <div class="step"><small>04</small><h3>Итог и экономия</h3><p>Готовая беседка обычно стоит в 2,2 раза дороже — показываем, сколько вы сбережёте.</p></div>
+    </div>
+
+    <div style="max-width:820px;margin-top:28px">
+      <details class="faq"><summary>Откуда берутся цены?</summary><p>Пока используются ориентировочные BYN-цены. У каждого материала есть распределение по четырём магазинам — в смете показывается тот, где цена ниже.</p></details>
+      <details class="faq"><summary>Как посчитан брус каркаса?</summary><p>Нижняя и верхняя обвязка по периметру, стойки с шагом около 2 м, плюс две прогонные балки под стропила. Длина стоек берётся по средней высоте.</p></details>
+      <details class="faq"><summary>Что входит в антисептик и краску?</summary><p>Покраска всего деревянного объёма: каркас, стропила, обрешётка, настил и перила. Антисептик считается как ~75% от объёма краски.</p></details>
+      <details class="faq"><summary>Сохраняются ли мои цены?</summary><p>Да. Нажмите «Сохранить» — размеры и цены запишутся в localStorage вашего браузера и подставятся при следующем открытии.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container foot">
+    <a class="logo" href="#top" style="font-size:1rem">
+      <svg width="28" height="28" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="18" fill="#f97316"/><path d="M20 55 50 25l30 30" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 55v20h36V55" fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round"/></svg>
+      Народная смета
+    </a>
+    <p class="muted" style="margin:0;font-size:.88rem">Расчёт ориентировочный. Цены — в белорусских рублях.</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+var DEFAULT_PRICES = {
+  bar:9, board50:9, batten:3.5, floorBoard:35,
+  metal:28, slate:12, ondulin:17, profile:18,
+  screws:6, roofScrews:6, brackets:0.5,
+  antiseptic:3, paint:8, balusters:9, rail:7,
+  piles:32, blocks:4, concrete:190, rebar:0.8, cement:11
+};
+var storeKey = "narodnaya-smeta-v2";
+
+var STORE_INFO = {
+  "21vek":{name:"21 век", search:"https://www.21vek.by/search/?term="},
+  ksk:{name:"KSK", search:"https://ksk.by/search/?q="},
+  oma:{name:"ОМА", search:"https://www.oma.by/search/?q="},
+  luna:{name:"Луна Строй", search:"https://lunastroy.by/search/?q="}
+};
+
+var STORE_FACTORS = {
+  bar:{ "21vek":1.04, ksk:1.00, oma:1.06, luna:1.02 },
+  board50:{ "21vek":1.00, ksk:1.03, oma:1.05, luna:1.02 },
+  batten:{ "21vek":1.02, ksk:1.00, oma:1.04, luna:1.03 },
+  floorBoard:{ "21vek":1.03, ksk:1.05, oma:1.06, luna:1.00 },
+  metal:{ "21vek":1.00, ksk:1.04, oma:1.05, luna:1.03 },
+  profile:{ "21vek":1.03, ksk:1.00, oma:1.02, luna:1.04 },
+  ondulin:{ "21vek":1.02, ksk:1.04, oma:1.00, luna:1.03 },
+  slate:{ "21vek":1.05, ksk:1.00, oma:1.03, luna:1.02 },
+  screws:{ "21vek":1.00, ksk:1.03, oma:1.04, luna:1.02 },
+  roofScrews:{ "21vek":1.03, ksk:1.02, oma:1.00, luna:1.04 },
+  brackets:{ "21vek":1.02, ksk:1.00, oma:1.03, luna:1.05 },
+  antiseptic:{ "21vek":1.00, ksk:1.05, oma:1.03, luna:1.02 },
+  paint:{ "21vek":1.03, ksk:1.04, oma:1.00, luna:1.02 },
+  balusters:{ "21vek":1.04, ksk:1.02, oma:1.03, luna:1.00 },
+  rail:{ "21vek":1.03, ksk:1.00, oma:1.05, luna:1.02 },
+  piles:{ "21vek":1.05, ksk:1.03, oma:1.06, luna:1.00 },
+  blocks:{ "21vek":1.02, ksk:1.00, oma:1.04, luna:1.03 },
+  rebar:{ "21vek":1.04, ksk:1.00, oma:1.05, luna:1.02 },
+  concrete:{ "21vek":1.06, ksk:1.02, oma:1.05, luna:1.00 },
+  cement:{ "21vek":1.00, ksk:1.03, oma:1.04, luna:1.02 }
+};
+
+var MATERIALS = {
+  bar:{label:"Брус 100×100", query:"брус 100х100"},
+  board50:{label:"Доска 50×150", query:"доска 50х150"},
+  batten:{label:"Доска 25×100", query:"доска 25х100"},
+  floorBoard:{label:"Доска пола", query:"доска пола"},
+  metal:{label:"Металлочерепица", query:"металлочерепица"},
+  profile:{label:"Профнастил", query:"профнастил"},
+  ondulin:{label:"Ондулин", query:"ондулин"},
+  slate:{label:"Шифер", query:"шифер"},
+  screws:{label:"Саморезы по дереву", query:"саморезы по дереву"},
+  roofScrews:{label:"Саморезы кровельные", query:"саморезы кровельные"},
+  brackets:{label:"Уголки крепёжные", query:"уголки крепежные"},
+  antiseptic:{label:"Антисептик", query:"антисептик для дерева"},
+  paint:{label:"Краска / пропитка", query:"пропитка для дерева"},
+  balusters:{label:"Балясины", query:"балясины"},
+  rail:{label:"Поручень", query:"поручень перила"},
+  piles:{label:"Винтовые сваи 57 мм", query:"свая винтовая 57"},
+  blocks:{label:"Блоки 20×20×40", query:"блок фундаментный 20х20х40"},
+  rebar:{label:"Арматура 12 мм", query:"арматура 12"},
+  concrete:{label:"Бетон М200", query:"бетон м200"},
+  cement:{label:"Цемент 25 кг", query:"цемент 25 кг"}
+};
+
+var CATALOG = [
+  {key:"bar", name:"Брус 100×100", unit:"м"},
+  {key:"board50", name:"Доска 50×150", unit:"м"},
+  {key:"batten", name:"Доска 25×100 (обрешётка)", unit:"м"},
+  {key:"floorBoard", name:"Доска пола", unit:"м²"},
+  {key:"metal", name:"Металлочерепица", unit:"м²"},
+  {key:"slate", name:"Шифер", unit:"м²"},
+  {key:"ondulin", name:"Ондулин", unit:"м²"},
+  {key:"profile", name:"Профнастил", unit:"м²"},
+  {key:"screws", name:"Саморезы по дереву", unit:"уп."},
+  {key:"roofScrews", name:"Саморезы кровельные", unit:"уп."},
+  {key:"brackets", name:"Уголки крепёжные", unit:"шт"},
+  {key:"antiseptic", name:"Антисептик", unit:"л"},
+  {key:"paint", name:"Пропитка / краска", unit:"л"},
+  {key:"balusters", name:"Балясины", unit:"шт"},
+  {key:"rail", name:"Поручень", unit:"м"},
+  {key:"piles", name:"Винтовые сваи 57 мм", unit:"шт"},
+  {key:"blocks", name:"Фундаментные блоки 20×20×40", unit:"шт"},
+  {key:"rebar", name:"Арматура 12 мм", unit:"м"},
+  {key:"concrete", name:"Бетон М200", unit:"м³"},
+  {key:"cement", name:"Цемент 25 кг", unit:"мешок"}
+];
+
+var STORES = [
+  {name:"21 век", url:"https://www.21vek.by/", on:true},
+  {name:"KSK (Гомель)", url:"https://ksk.by/", on:true},
+  {name:"ОМА", url:"https://www.oma.by/", on:true},
+  {name:"Луна Строй", url:"https://lunastroy.by/", on:true},
+  {name:"Wildberries", url:"https://www.wildberries.by/", on:false, note:"не входит в сравнение"},
+  {name:"Ozon", url:"https://ozon.by/", on:false, note:"не входит в сравнение"},
+  {name:"Скайпрофиль", url:"https://skyprofil.by/", on:false, note:"есть в 21 век и ОМА"},
+  {name:"Гермес", url:"https://germes.by/", on:false, note:"каталог без цен"}
+];
+
+function $(id){ return document.getElementById(id); }
+function fmt(n){ return Math.round(n).toLocaleString("ru-RU") + " BYN"; }
+function fmt1(n){ return (Math.round(n*10)/10).toFixed(1).replace(".", ","); }
+function num(v, fb){ var n = parseFloat(String(v).replace(",", ".")); return isFinite(n) && n >= 0 ? n : (fb||0); }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(m){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]); }); }
+
+var prices = Object.assign({}, DEFAULT_PRICES);
+
+function bestStore(key){
+  var f = STORE_FACTORS[key], m = MATERIALS[key];
+  if(!f || !m) return null;
+  var order = ["21vek","ksk","oma","luna"];
+  var winner = order[0], best = Infinity;
+  order.forEach(function(id){ if(f[id] != null && f[id] < best){ best = f[id]; winner = id; } });
+  var info = STORE_INFO[winner];
+  return { name:info.name, url:info.search + encodeURIComponent(m.query), factor:best, unitPrice:prices[key]*best };
+}
+
+var themeToggle = $("themeToggle");
+function setTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  themeToggle.textContent = t === "dark" ? "🌙" : "☀️";
+  try { localStorage.setItem("ns-theme", t); } catch(e){}
+}
+themeToggle.addEventListener("click", function(){
+  setTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+});
+try { setTheme(localStorage.getItem("ns-theme") || "dark"); } catch(e){ setTheme("dark"); }
+
+$("burger").addEventListener("click", function(){ $("mobilePanel").classList.toggle("open"); });
+$("mobilePanel").addEventListener("click", function(e){ if(e.target.tagName === "A") $("mobilePanel").classList.remove("open"); });
+
+function bindSwitch(id){
+  var el = $(id);
+  el.addEventListener("click", function(){
+    el.setAttribute("aria-checked", el.getAttribute("aria-checked") === "true" ? "false" : "true");
+    compute();
+  });
+}
+bindSwitch("floorSwitch"); bindSwitch("railsSwitch");
+function switchOn(id){ return $(id).getAttribute("aria-checked") === "true"; }
+
+function renderStores(){
+  $("storeChips").innerHTML = STORES.map(function(s){
+    var inner = '<i>●</i>' + esc(s.name) + (s.note ? ' <span class="muted">· '+esc(s.note)+'</span>' : '');
+    return s.url !== "#"
+      ? '<a class="chip'+(s.on?' on':'')+'" href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+inner+'</a>'
+      : '<span class="chip'+(s.on?' on':'')+'">'+inner+'</span>';
+  }).join("");
+}
+
+function renderPriceCards(){
+  $("priceCards").innerHTML = CATALOG.map(function(item){
+    return ''+
+    '<div class="card mcard" data-key="'+item.key+'">'+
+      '<div class="mcard-top">'+
+        '<div><div class="mcard-name">'+esc(item.name)+'</div><div class="mcard-unit">цена за '+esc(item.unit)+'</div></div>'+
+        '<div class="mcard-price"><span class="price-view">'+fmt1(prices[item.key])+'</span> BYN</div>'+
+      '</div>'+
+      '<label class="lbl" for="p-'+item.key+'">Цена для расчёта, BYN</label>'+
+      '<input class="price-input" id="p-'+item.key+'" type="number" min="0" step="0.1" value="'+prices[item.key]+'">'+
+    '</div>';
+  }).join("");
+
+  $("priceCards").addEventListener("input", function(e){
+    var card = e.target.closest(".mcard"); if(!card) return;
+    if(!e.target.classList.contains("price-input")) return;
+    var key = card.getAttribute("data-key");
+    prices[key] = num(e.target.value, 0);
+    card.querySelector(".price-view").textContent = fmt1(prices[key]);
+    compute();
+  });
+}
+
+function showToast(text){
+  var t = $("toast"); t.textContent = text; t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, 2200);
+}
+
+function buildLine(name, detail, parts, formula){
+  var cost = 0;
+  parts.forEach(function(p){ cost += prices[p.key] * p.qty; });
+  return { name:name, detail:detail, parts:parts, cost:cost, formula:formula||"" };
+}
+
+function compute(){
+  var L = num($("length").value, 4),
+      W = num($("width").value, 4),
+      hF = num($("frontH").value, 2.5),
+      hB = num($("backH").value, 2.2),
+      railLen = num($("railLength").value, 0),
+      floorOn = switchOn("floorSwitch"),
+      railsOn = switchOn("railsSwitch"),
+      roof = $("roofType").value,
+      found = $("foundationType").value;
+
+  var area = L * W;
+  var perimeter = 2 * (L + W);
+  var avgH = (hF + hB) / 2;
+  var rise = Math.abs(hF - hB);
+  var slopeLen = Math.hypot(W, rise);
+  var roofArea = slopeLen * L * 1.15;
+
+  var postsAlongL = Math.max(2, Math.ceil(L / 2) + 1);
+  var postsAlongW = Math.max(2, Math.ceil(W / 2) + 1);
+  var posts = 2 * postsAlongL + 2 * Math.max(0, postsAlongW - 2);
+  var beamM = posts * avgH + 2 * perimeter + 2 * L;
+
+  var floorJoists = floorOn ? (Math.ceil(L / 0.6) + 1) * W : 0;
+  var floorBoardArea = floorOn ? area * 1.1 : 0;
+
+  var raftersN = Math.ceil(L / 0.8) + 1;
+  var rafterM = raftersN * slopeLen;
+  var lathCount = Math.ceil(slopeLen / 0.35) + 1;
+  var lathM = lathCount * L;
+
+  var balusters = railsOn ? Math.max(0, Math.floor(railLen / 0.13) - 1) : 0;
+
+  var woodVolume =
+      beamM * 0.10 * 0.10 +
+      (floorJoists + rafterM) * 0.05 * 0.15 +
+      lathM * 0.025 * 0.10 +
+      (floorOn ? floorBoardArea * 0.05 : 0) +
+      (railsOn ? railLen * 1.5 * 0.04 * 0.08 : 0);
+  var paintL = Math.max(1, woodVolume * 12);
+  var antisL = paintL * 0.75;
+
+  var screws = Math.ceil((beamM + floorJoists + rafterM) / 8) + 2;
+  var roofScrews = Math.ceil(roofArea / 1.5) + 1;
+  var brackets = posts * 2 + raftersN * 2;
+
+  var lines = [];
+  lines.push(buildLine("Каркас",
+    fmt1(beamM)+" м бруса 100×100",
+    [{key:"bar", qty:beamM, unit:"м"}],
+    posts+" стоек × "+fmt1(avgH)+" м + 2×периметр "+fmt1(perimeter)+" м + 2 прогона "+fmt1(L)+" м"));
+
+  if(floorOn){
+    lines.push(buildLine("Пол",
+      fmt1(floorJoists)+" м доска 50×150 · "+fmt1(floorBoardArea)+" м² доска пола",
+      [{key:"board50", qty:floorJoists, unit:"м"}, {key:"floorBoard", qty:floorBoardArea, unit:"м²"}],
+      "Лаги с шагом 0.6 м + настил, +10% запаса"));
+  }
+
+  lines.push(buildLine("Стропила и обрешётка",
+    fmt1(rafterM)+" м доска 50×150 · "+fmt1(lathM)+" м доска 25×100",
+    [{key:"board50", qty:rafterM, unit:"м"}, {key:"batten", qty:lathM, unit:"м"}],
+    raftersN+" стропил × "+fmt1(slopeLen)+" м; обрешётка с шагом 0.35 м"));
+
+  var roofName = {metal:"Металлочерепица", profile:"Профнастил", ondulin:"Ондулин", slate:"Шифер"}[roof];
+  lines.push(buildLine("Кровля",
+    fmt1(roofArea)+" м² · "+roofName,
+    [{key:roof, qty:roofArea, unit:"м²"}],
+    "Уклон: гипотенуза "+fmt1(W)+" м и "+fmt1(rise)+" м; +15% на нахлёст"));
+
+  lines.push(buildLine("Крепёж",
+    screws+" уп. саморезы · "+roofScrews+" уп. кровельные · "+brackets+" уголков",
+    [{key:"screws", qty:screws, unit:"уп."}, {key:"roofScrews", qty:roofScrews, unit:"уп."}, {key:"brackets", qty:brackets, unit:"шт"}],
+    "Саморезы ≈ 1 уп. на 8 м дерева; кровельные ≈ 1 уп. на 1.5 м²"));
+
+  lines.push(buildLine("Антисептик",
+    fmt1(antisL)+" л",
+    [{key:"antiseptic", qty:antisL, unit:"л"}],
+    "≈ 75% от расхода краски по объёму древесины "+woodVolume.toFixed(2)+" м³"));
+
+  if(railsOn){
+    lines.push(buildLine("Перила",
+      balusters+" балясин · "+fmt1(railLen)+" м поручень",
+      [{key:"balusters", qty:balusters, unit:"шт"}, {key:"rail", qty:railLen, unit:"м"}],
+      "Балясины через 0.13 м; поручень по заданной длине"));
+  }
+
+  lines.push(buildLine("Краска / пропитка",
+    fmt1(paintL)+" л",
+    [{key:"paint", qty:paintL, unit:"л"}],
+    "Расход ≈ 12 л на 1 м³ древесины"));
+
+  if(found === "piles"){
+    var px = Math.ceil(L / 2) + 1, py = Math.ceil(W / 2) + 1, piles = px * py;
+    lines.push(buildLine("Фундамент: сваи",
+      piles+" шт · шаг ≈ 2 м",
+      [{key:"piles", qty:piles, unit:"шт"}],
+      px+" × "+py+" = "+piles+" винтовых свай"));
+  } else if(found === "blocks"){
+    var bx = Math.ceil(L / 2) + 1, by = Math.ceil(W / 2) + 1, blocks = bx * by;
+    lines.push(buildLine("Фундамент: блоки",
+      blocks+" шт 20×20×40",
+      [{key:"blocks", qty:blocks, unit:"шт"}],
+      bx+" × "+by+" = "+blocks+" блоков по периметру сетки"));
+  } else {
+    var concreteVol = area * 0.15, rebarM = perimeter * 4 + Math.max(L,W) * 2, bags = Math.ceil(concreteVol * 8.5);
+    lines.push(buildLine("Фундамент: лента",
+      fmt1(concreteVol)+" м³ бетон · "+fmt1(rebarM)+" м арматура · "+bags+" мешков",
+      [{key:"concrete", qty:concreteVol, unit:"м³"}, {key:"rebar", qty:rebarM, unit:"м"}, {key:"cement", qty:bags, unit:"мешок"}],
+      "Лента 0.15 м³ на 1 м² площади; арматура 4 нитки + перемычки"));
+  }
+
+  var total = lines.reduce(function(s,l){ return s + l.cost; }, 0);
+  var ready = total * 2.2;
+
+  $("summaryLine").textContent = "Площадь " + fmt1(area) + " м² · уклон кровли " + fmt1(rise) + " м на " + fmt1(W) + " м";
+
+  $("estimateLines").innerHTML = lines.map(function(l){
+    var buys = l.parts.map(function(p){
+      var b = bestStore(p.key);
+      if(!b) return "";
+      var mat = MATERIALS[p.key];
+      return '<a class="buy-link" href="'+esc(b.url)+'" target="_blank" rel="noopener noreferrer" title="'+esc(mat.label)+' — '+esc(b.name)+'">'
+        + '<span>'+esc(mat.label)+'</span>'
+        + '<span class="buy-store">'+esc(b.name)+'</span>'
+        + '<span class="buy-price">'+fmt1(b.unitPrice)+' BYN/'+esc(p.unit)+'</span>'
+        + '<span class="buy-arrow">↗</span>'
+        + '</a>';
+    }).join("");
+
+    return '<div class="est-line">'
+      + '<button class="est-btn" type="button">'
+      +   '<span><span class="est-name">'+esc(l.name)+'</span><br><span class="est-detail">'+esc(l.detail)+'</span></span>'
+      +   '<span class="est-price">'+fmt(l.cost)+'</span>'
+      + '</button>'
+      + '<div class="est-buy">'+buys+'</div>'
+      + '<div class="est-formula">'+esc(l.formula)+'</div>'
+      + '</div>';
+  }).join("");
+
+  $("estimateLines").querySelectorAll(".est-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){ btn.closest(".est-line").classList.toggle("open"); });
+  });
+
+  $("totalSelf").textContent = fmt(total);
+  $("totalReady").textContent = fmt(ready);
+  $("totalSave").textContent = fmt(ready - total);
+}
+
+function collectState(){
+  return {
+    dims:{length:$("length").value,width:$("width").value,frontH:$("frontH").value,backH:$("backH").value,
+          railLength:$("railLength").value,railHeight:$("railHeight").value,
+          floor:switchOn("floorSwitch"),rails:switchOn("railsSwitch"),
+          roofType:$("roofType").value,foundationType:$("foundationType").value},
+    prices:prices
+  };
+}
+function saveState(show){
+  try { localStorage.setItem(storeKey, JSON.stringify(collectState())); if(show!==false) showToast("Сохранено в браузере"); }
+  catch(e){ showToast("Не удалось сохранить"); }
+}
+function loadState(){
+  try {
+    var raw = localStorage.getItem(storeKey); if(!raw) return;
+    var s = JSON.parse(raw);
+    if(s.dims){
+      ["length","width","frontH","backH","railLength","railHeight"].forEach(function(k){ if(s.dims[k]!=null) $(k).value = s.dims[k]; });
+      $("floorSwitch").setAttribute("aria-checked", s.dims.floor ? "true" : "false");
+      $("railsSwitch").setAttribute("aria-checked", s.dims.rails ? "true" : "false");
+      if(s.dims.roofType) $("roofType").value = s.dims.roofType;
+      if(s.dims.foundationType) $("foundationType").value = s.dims.foundationType;
+    }
+    if(s.prices) prices = Object.assign({}, DEFAULT_PRICES, s.prices);
+  } catch(e){}
+}
+
+$("calcForm").addEventListener("submit", function(e){ e.preventDefault(); compute(); saveState(false); showToast("Смета пересчитана"); });
+["length","width","frontH","backH","railLength","railHeight","roofType","foundationType"].forEach(function(id){
+  $(id).addEventListener("input", compute); $(id).addEventListener("change", compute);
+});
+$("resetDims").addEventListener("click", function(){
+  $("length").value=4; $("width").value=4; $("frontH").value=2.5; $("backH").value=2.2;
+  $("railLength").value=11.2; $("railHeight").value=1;
+  $("floorSwitch").setAttribute("aria-checked","true"); $("railsSwitch").setAttribute("aria-checked","true");
+  $("roofType").value="metal"; $("foundationType").value="piles";
+  compute();
+});
+$("resetPrices").addEventListener("click", function(){
+  prices = Object.assign({}, DEFAULT_PRICES); renderPriceCards(); compute(); showToast("Цены сброшены");
+});
+$("saveBtn").addEventListener("click", function(){ saveState(true); });
+$("saveBtnMobile").addEventListener("click", function(e){ e.preventDefault(); saveState(true); });
+
+loadState();
+renderStores();
+renderPriceCards();
+compute();
+</script>
+</body>
+</html>
